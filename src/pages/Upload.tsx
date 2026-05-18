@@ -30,7 +30,7 @@ import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { toastSuccess, toastError, toastInfo } from "@/utils/toast";
 import { useSelector } from "react-redux";
-
+ 
 import {
   initiateMultipartUpload,
   getPresignedUrlBatch,
@@ -57,7 +57,7 @@ import {
 } from "@/components/ui/dialog";
 import ApiClient from "@/api-client";
 import { API_URL } from "@/environment";
-
+ 
 interface UploadFile {
   id: string;
   file: File;
@@ -69,13 +69,13 @@ interface UploadFile {
   assetId?: string;
   uploadId?: string;
 }
-
+ 
 // Track ongoing uploads for aborting
 interface UploadController {
   assetId: string;
   uploadId: string;
 }
-
+ 
 export default function Upload() {
   const userRole = useSelector(selectUserRole);
   const user = useSelector(selectAuthUser);
@@ -83,24 +83,24 @@ export default function Upload() {
   const [files, setFiles] = useState<UploadFile[]>([]);
   const brandId = user?.brandId || user?.brand_id || "";
   const brandName = user?.brandName || user?.brand_name || "Assigned Brand";
-
+ 
   const [isDriveModalOpen, setIsDriveModalOpen] = useState(false);
   const [isSourceSelectionOpen, setIsSourceSelectionOpen] = useState(false);
   const [isWatchFolderModalOpen, setIsWatchFolderModalOpen] = useState(false);
   const [isSharePointWatchModalOpen, setIsSharePointWatchModalOpen] =
     useState(false);
   const [isCheckingIntegration, setIsCheckingIntegration] = useState(false);
-
+ 
   // Form State (global settings for all uploads)
   const [channel, setChannel] = useState("instagram");
   const [geo, setGeo] = useState("eu");
   const [contentType, setContentType] = useState("in");
   const [autoDisclosure, setAutoDisclosure] = useState(true);
   const [autoC2PA, setAutoC2PA] = useState(true);
-
+ 
   // Map to store upload metadata for aborting
   const uploadControllers = useRef<Map<string, UploadController>>(new Map());
-
+ 
   // Supported File Types (JPEG, PNG, WebP, TIFF, MP4, MOV)
   const ALLOWED_FILE_TYPES = [
     "image/jpeg",
@@ -112,11 +112,11 @@ export default function Upload() {
     "video/mp4",
     "video/quicktime",
   ];
-
+ 
   const validateFileType = (file: File) => {
     return ALLOWED_FILE_TYPES.includes(file.type);
   };
-
+ 
   // Business-level max asset size
   const DEFAULT_MAX_FILE_SIZE_MB = 1024;
   const [maxFileSizeBytes, setMaxFileSizeBytes] = useState(
@@ -126,10 +126,10 @@ export default function Upload() {
     maxFileSizeBytes >= 1024 * 1024 * 1024
       ? "1 GB (1024 MB)"
       : `${Math.round(maxFileSizeBytes / (1024 * 1024))} MB`;
-
+ 
   const CHUNK_SIZE = 16 * 1024 * 1024; // 16MB
   const UPLOAD_CONCURRENCY = 6;
-
+ 
   // Fetch config for max file size
   useEffect(() => {
     const fetchConfig = async () => {
@@ -150,11 +150,11 @@ export default function Upload() {
     };
     fetchConfig();
   }, []);
-
+ 
   // Auto-start upload for a single file
   const uploadFile = async (fileItem: UploadFile) => {
     const { id, file, name, size } = fileItem;
-
+ 
     // Update status to uploading
     setFiles((prev) =>
       prev.map((f) =>
@@ -163,10 +163,10 @@ export default function Upload() {
           : f
       )
     );
-
+ 
     let assetId = null;
     let uploadId = null;
-
+ 
     try {
       // Compute file hash for duplicate check
       let fileSha256 = "";
@@ -175,7 +175,7 @@ export default function Upload() {
       } catch (hashErr) {
         console.warn("Could not compute file hash:", hashErr);
       }
-
+ 
       // Initiate upload
       const initResponse = await initiateMultipartUpload({
         filename: name,
@@ -190,20 +190,20 @@ export default function Upload() {
         auto_generate_disclosure: autoDisclosure,
         auto_embed_c2pa: autoC2PA,
       });
-
+ 
       uploadId = initResponse.upload_id;
       assetId = initResponse.asset_id;
-
+ 
       // Store controllers for abort
       uploadControllers.current.set(id, { assetId, uploadId });
-
+ 
       // Update file with assetId/uploadId
       setFiles((prev) =>
         prev.map((f) =>
           f.id === id ? { ...f, assetId, uploadId } : f
         )
       );
-
+ 
       // Get presigned URLs
       const totalParts = Math.ceil(size / CHUNK_SIZE);
       if (totalParts === 0) throw new Error("File is empty");
@@ -214,7 +214,7 @@ export default function Upload() {
         partNumbers
       );
       const urlByPart = new Map(presignedList.map((p) => [p.part_number, p.url]));
-
+ 
       // Upload parts with concurrency
       const runWithConcurrency = async <T,>(
         tasks: (() => Promise<T>)[],
@@ -243,7 +243,7 @@ export default function Upload() {
             (b as { PartNumber: number }).PartNumber
         );
       };
-
+ 
       const uploadTasks = partNumbers.map((partNumber) => {
         const start = (partNumber - 1) * CHUNK_SIZE;
         const end = Math.min(start + CHUNK_SIZE, size);
@@ -257,10 +257,10 @@ export default function Upload() {
           }));
       });
       const parts = await runWithConcurrency(uploadTasks, UPLOAD_CONCURRENCY);
-
+ 
       // Complete upload
       await completeMultipartUpload(assetId, uploadId, parts);
-
+ 
       // Mark complete
       setFiles((prev) =>
         prev.map((f) =>
@@ -270,15 +270,15 @@ export default function Upload() {
       toastSuccess(`${name} uploaded successfully.`, "Upload Complete");
     } catch (error: any) {
       console.error(`Upload error for ${name}:`, error);
-
+ 
       // Abort if we have assetId and uploadId
       if (assetId && uploadId) {
         await abortMultipartUpload(assetId, uploadId);
       }
-
+ 
       let errorMsg = "Upload failed";
       if (error.message) errorMsg = error.message;
-
+ 
       if (error.code === "DUPLICATE_ASSET") {
         const existingId = error.existingAssetId || "";
         toastError(
@@ -288,7 +288,7 @@ export default function Upload() {
       } else {
         toastError(`Failed to upload ${name}: ${errorMsg}`, "Upload Failed");
       }
-
+ 
       setFiles((prev) =>
         prev.map((f) =>
           f.id === id
@@ -305,14 +305,14 @@ export default function Upload() {
       uploadControllers.current.delete(id);
     }
   };
-
+ 
   // Add files and start upload automatically
   const addFilesAndUpload = (newFiles: File[]) => {
     if (!brandId) {
       toastError("No brand context found. Please contact support.", "Error");
       return;
     }
-
+ 
     const validFiles = newFiles.filter(validateFileType);
     const invalidCount = newFiles.length - validFiles.length;
     if (invalidCount > 0) {
@@ -321,7 +321,7 @@ export default function Upload() {
         "Invalid File Type"
       );
     }
-
+ 
     const oversized = validFiles.filter((f) => f.size > maxFileSizeBytes);
     const validSize = validFiles.filter((f) => f.size <= maxFileSizeBytes);
     if (oversized.length > 0) {
@@ -331,7 +331,7 @@ export default function Upload() {
       );
     }
     if (validSize.length === 0) return;
-
+ 
     const newFileItems: UploadFile[] = validSize.map((file) => ({
       id: Math.random().toString(36).substr(2, 9),
       file,
@@ -340,21 +340,21 @@ export default function Upload() {
       progress: 0,
       status: "pending",
     }));
-
+ 
     setFiles((prev) => [...prev, ...newFileItems]);
     toastSuccess(
       `Asset${newFileItems.length > 1 ? "s" : ""} added, upload started.`,
       "Processing"
     );
-
+ 
     // Start upload for each file
     newFileItems.forEach((fileItem) => uploadFile(fileItem));
   };
-
+ 
   // Remove file: abort if uploading, delete from DB if completed, then remove from UI
   const removeFile = async (fileItem: UploadFile) => {
     const { id, status, assetId, uploadId, name } = fileItem;
-
+ 
     // If still uploading, try to abort multipart upload
     if (status === "uploading" && assetId && uploadId) {
       try {
@@ -364,7 +364,7 @@ export default function Upload() {
         console.error("Abort error:", err);
       }
     }
-
+ 
     // If complete, delete the asset from backend
     if (status === "complete" && assetId) {
       try {
@@ -376,24 +376,24 @@ export default function Upload() {
         // Optionally keep file in UI? We'll still remove but warn.
       }
     }
-
+ 
     // Remove from UI
     setFiles((prev) => prev.filter((f) => f.id !== id));
     uploadControllers.current.delete(id);
   };
-
+ 
   // Handle local file selection
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
     addFilesAndUpload(selectedFiles);
     e.target.value = ""; // allow re-upload
   };
-
+ 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
   };
-
+ 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -403,47 +403,47 @@ export default function Upload() {
       e.dataTransfer.clearData();
     }
   };
-
+ 
   const formatSize = (bytes: number) => {
     if (bytes < 1024) return bytes + " B";
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
     return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   };
-
+ 
   // Google Drive & SharePoint integration (unchanged, but modify import to auto-upload)
   // (Keep all existing modals and connection logic, but adjust onImport to call upload after blob fetched)
   const handleOpenDriveModal = async () => { /* same as original but keep */ };
   const handleOpenGoogleDriveWatchModal = async () => { /* same */ };
   const handleOpenSharePointWatchModal = async () => { /* same */ };
-
+ 
   // For brevity, I'll keep the modal open/handling but ensure after import we call addFilesAndUpload
   // Actually in the GoogleDriveModal onImport we already handle adding files with dummy File then replace and call upload.
   // Since we have `uploadFile`, we'll adapt that.
-
+ 
   return (
-    <div className="space-y-4 p-6 animate-fade-in">
-      <div className="flex items-start justify-between">
+    <div className="space-y-4 p-3 sm:p-6 animate-fade-in">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
         <div>
-          <h1 className="font-display text-2xl font-semibold flex items-center gap-2">
+          <h1 className="font-display text-xl sm:text-2xl font-semibold flex items-center gap-2">
             Upload Assets
           </h1>
-          <p className="text-muted-foreground text-[14px]">
+          <p className="text-muted-foreground text-[13px] sm:text-[14px]">
             Upload media files for compliance analysis and pre-flight checks
           </p>
         </div>
       </div>
-
-      <div className="flex gap-6">
+ 
+      <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
         {/* Upload Area */}
         <div className="flex-1 h-fit">
           <Card className="card-shadow h-full flex flex-col mb-5">
             <CardHeader className="py-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <CardTitle className="text-xl font-medium leading-none tracking-tight text-[#454545]">
                   Select Files
                 </CardTitle>
-                <div className="w-[250px] flex justify-end">
-                  <div className="flex h-9 items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm opacity-80">
+                <div className="w-full sm:w-auto sm:max-w-[250px] flex justify-start sm:justify-end">
+                  <div className="flex h-9 items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm opacity-80 w-full sm:w-auto">
                     <span className="font-medium truncate" title={brandName}>
                       {brandName}
                     </span>
@@ -459,8 +459,8 @@ export default function Upload() {
                 htmlFor="file-upload"
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
-                className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors 
-                  border-border bg-secondary/30 hover:border-primary hover:bg-accent/50 
+                className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors
+                  border-border bg-secondary/30 hover:border-primary hover:bg-accent/50
                   p-8 min-h-[200px]`}
               >
                 <UploadIcon className="h-12 w-12 text-muted-foreground" />
@@ -483,14 +483,14 @@ export default function Upload() {
                   onChange={handleFileSelect}
                 />
               </label>
-
+ 
               {/* File List */}
               {files.length > 0 && (
-                <div className="mt-4 space-y-2 min-h-[80px] overflow-y-auto">
+                <div className="mt-4 space-y-2 min-h-[80px] overflow-y-auto max-h-[50vh] lg:max-h-none">
                   {files.map((file) => (
                     <div
                       key={file.id}
-                      className="flex items-center gap-4 rounded-lg bg-card p-2 border border-border"
+                      className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-lg bg-card p-2 border border-border"
                     >
                       <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary shrink-0">
                         {file.name.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
@@ -499,8 +499,8 @@ export default function Upload() {
                           <FileVideo className="h-5 w-5 text-primary" />
                         )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between mb-1">
+                      <div className="flex-1 min-w-0 w-full">
+                        <div className="flex justify-between items-end mb-1">
                           <p className="truncate font-medium text-sm">
                             {file.name}
                           </p>
@@ -548,7 +548,7 @@ export default function Upload() {
                           )}
                         </div>
                       </div>
-<div className="shrink-0 flex items-center gap-2 flex-wrap">
+<div className="flex items-center gap-2 flex-wrap sm:shrink-0">
   {/* Pre-flight button – only when complete, placed first */}
   {file.status === "complete" && (
     <Button
@@ -561,7 +561,7 @@ export default function Upload() {
       <span>Pre-flight</span>
     </Button>
   )}
-
+ 
   {/* View button – always visible */}
   <Button
     variant="default"
@@ -573,7 +573,7 @@ export default function Upload() {
     <Eye className="h-3.5 w-3.5" />
     <span>View</span>
   </Button>
-
+ 
   {/* Delete button – only when complete, placed after View */}
   {file.status === "complete" && (
     <Button
@@ -587,7 +587,7 @@ export default function Upload() {
       <span>Delete</span>
     </Button>
   )}
-
+ 
   {/* Cancel upload button */}
   {file.status === "uploading" && (
     <Button
@@ -601,7 +601,7 @@ export default function Upload() {
       <span>Cancel</span>
     </Button>
   )}
-
+ 
   {/* Remove error button */}
   {file.status === "error" && (
     <Button
@@ -615,7 +615,7 @@ export default function Upload() {
       <span>Remove</span>
     </Button>
   )}
-
+ 
   {/* Uploading spinner (for any other status, e.g., 'pending') */}
   {file.status !== "complete" &&
     file.status !== "uploading" &&
@@ -633,9 +633,9 @@ export default function Upload() {
             </CardContent>
           </Card>
         </div>
-
+ 
         {/* Settings Sidebar */}
-        <div className="flex w-80 flex-col gap-6 flex-shrink-0">
+        <div className="flex w-full lg:w-80 flex-col gap-4 lg:gap-6 lg:flex-shrink-0">
           {/* Quick Actions */}
           <Card className="card-shadow">
             <CardHeader className="py-4">
@@ -653,7 +653,7 @@ export default function Upload() {
                 <Folder className="h-5 w-5 text-primary" />
                 <span>Import from Google Drive</span>
               </Button>
-
+ 
               <Button
                 variant="outline"
                 className="w-full justify-start gap-3 h-auto py-3"
@@ -667,8 +667,8 @@ export default function Upload() {
               </Button>
             </CardContent>
           </Card>
-
-          <Card className="card-shadow">
+ 
+          {/* <Card className="card-shadow">
             <CardHeader className="py-4">
               <CardTitle className="text-xl font-medium text-[#454545]">
                 Upload Settings
@@ -691,7 +691,7 @@ export default function Upload() {
                   </SelectContent>
                 </Select>
               </div>
-
+ 
               <div className="space-y-1">
                 <Label>Target Geography</Label>
                 <Select value={geo} onValueChange={setGeo}>
@@ -709,7 +709,7 @@ export default function Upload() {
                   </SelectContent>
                 </Select>
               </div>
-
+ 
               <div className="space-y-1">
                 <Label>Content Type</Label>
                 <Select value={contentType} onValueChange={setContentType}>
@@ -722,7 +722,7 @@ export default function Upload() {
                   </SelectContent>
                 </Select>
               </div>
-
+ 
               <div className="space-y-4 border-t border-border pt-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
@@ -736,7 +736,7 @@ export default function Upload() {
                     onCheckedChange={setAutoDisclosure}
                   />
                 </div>
-
+ 
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Auto-embed C2PA</Label>
@@ -748,10 +748,10 @@ export default function Upload() {
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
       </div>
-
+ 
       {/* Modals - keep existing implementations but adjust GoogleDriveModal onImport to call uploadFile after blob is ready */}
       <GoogleDriveModal
         isOpen={isDriveModalOpen}
@@ -773,7 +773,7 @@ export default function Upload() {
           // We'll assume you'll replace the existing import logic with the above.
         }}
       />
-
+ 
       <Dialog open={isSourceSelectionOpen} onOpenChange={setIsSourceSelectionOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -806,7 +806,7 @@ export default function Upload() {
           </div>
         </DialogContent>
       </Dialog>
-
+ 
       <GoogleDriveModal
         isOpen={isWatchFolderModalOpen}
         onClose={() => setIsWatchFolderModalOpen(false)}
@@ -829,7 +829,7 @@ export default function Upload() {
           }
         }}
       />
-
+ 
       <SharePointModal
         isOpen={isSharePointWatchModalOpen}
         onClose={() => setIsSharePointWatchModalOpen(false)}

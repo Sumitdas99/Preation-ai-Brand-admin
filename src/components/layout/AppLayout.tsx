@@ -1,10 +1,14 @@
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useEffect, useRef } from "react";
-import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 import { selectIsAuthenticated } from "@/context/slice/authSlice";
 import { getProfile } from "@/api/auth";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+
+// IMPORT YOUR NEW SIDEBAR HERE
+// Adjust the path "./Sidebar" if you saved it in a different folder
+import { AppSidebar } from "./Sidebar"; 
 
 export function AppLayout() {
   const isAuthenticated = useSelector(selectIsAuthenticated);
@@ -56,14 +60,15 @@ export function AppLayout() {
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-background">
-      <Sidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
+    <SidebarProvider>
+      {/* USE THE NEW COMPONENT HERE */}
+      <AppSidebar />
+      <SidebarInset className="flex flex-1 flex-col overflow-hidden h-screen bg-background">
         <Header />
         <main className="flex-1 overflow-y-auto">
           <Outlet />
         </main>
-      </div>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

@@ -7,6 +7,7 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "./context/store";
 import routers from "./routers";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const queryClient = new QueryClient();
 
@@ -14,11 +15,15 @@ const App = () => (
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <RouterProvider router={routers} />
-        </TooltipProvider>
+        {/* Theme provider handles light/dark mode */}
+        <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+          {/* Global Tooltip Provider (delayDuration=0 makes sidebars snappy) */}
+          <TooltipProvider delayDuration={0}>
+            <Toaster />
+            <Sonner />
+            <RouterProvider router={routers} />
+          </TooltipProvider>
+        </ThemeProvider>
       </QueryClientProvider>
     </PersistGate>
   </Provider>
