@@ -1,0 +1,14 @@
+export const MOCK_WORKSPACE_ID = "ws_demo_acme_eu";
+export const MOCK_ASSET_ID = "ast_demo_summer_campaign_hero";
+export const MOCK_ASSET_VERSION_ORIGINAL = "asv_demo_original";
+export const MOCK_ASSET_VERSION_C2PA = "asv_demo_c2pa";
+export const MOCK_RUN_ID = "pfr_demo_0001";
+export const MOCK_POLICY_DECISION_ID = "pd_demo_0001";
+export const MOCK_DISCLOSURE_SPEC_ID = "dsp_demo_0001";
+export const MOCK_LEGAL_DISCLOSURE_SPEC_ID = "dsp_legal_0001";
+export const MOCK_EVIDENCE_PACK_ID = "ep_demo_0001";
+export const MOCK_REVIEWER_ID = "usr_demo_reviewer";
+export const MOCK_LEGAL_ID = "usr_demo_legal";
+export const MOCK_INCIDENT_ID = "INC-20260418-0041";
+export const MOCK_CONSENT_SPEC_ID = "csp_demo_0001";
+export const MOCK_ORG_NAME = "Acme Brand EU";

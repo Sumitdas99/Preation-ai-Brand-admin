@@ -1,0 +1,548 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+      "title": "Aegis Auth Service",
+      "description": "Authentication & Authorization Service for Aegis AI",
+      "version": "1.0.0"
+    },
+    "paths": {
+      "/api/v1/auth/signup/send-otp": {
+        "post": {
+          "tags": [
+            "auth"
+          ],
+          "summary": "Send OTP for Signup",
+          "description": "Send one-time password to email for signup verification.",
+          "operationId": "send_otp_for_signup_api_v1_auth_signup_send_otp_post",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendOTPRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/auth/signup": {
+        "post": {
+          "tags": [
+            "auth"
+          ],
+          "summary": "Complete Signup - Verify OTP",
+          "description": "Verify OTP code and complete user registration. Step 2 of 2-step signup.",
+          "operationId": "verify_otp_and_signup_api_v1_auth_signup_post",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyOTPAndSignupRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/auth/login": {
+        "post": {
+          "tags": [
+            "auth"
+          ],
+          "summary": "User Login",
+          "description": "Authenticate user via AWS Cognito and return user details with access token.",
+          "operationId": "login_api_v1_auth_login_post",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/LoginResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "DeleteUserResponse": {
+          "properties": {
+            "message": {
+              "type": "string",
+              "title": "Message",
+              "description": "Deletion confirmation message"
+            },
+            "user_id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id",
+              "description": "Deleted user ID"
+            },
+            "email": {
+              "type": "string",
+              "title": "Email",
+              "description": "Deleted user email"
+            }
+          },
+          "type": "object",
+          "required": [
+            "message",
+            "user_id",
+            "email"
+          ],
+          "title": "DeleteUserResponse",
+          "description": "Delete user response schema.",
+          "example": {
+            "email": "rocky.shetty@example.com",
+            "message": "User account successfully deleted",
+            "user_id": "ae288d86-96dc-46c3-ab52-8f428be208e6"
+          }
+        },
+        "HTTPValidationError": {
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/components/schemas/ValidationError"
+              },
+              "type": "array",
+              "title": "Detail"
+            }
+          },
+          "type": "object",
+          "title": "HTTPValidationError"
+        },
+        "LoginRequest": {
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email",
+              "title": "Email",
+              "description": "User email address"
+            },
+            "password": {
+              "type": "string",
+              "minLength": 6,
+              "title": "Password",
+              "description": "User password"
+            }
+          },
+          "type": "object",
+          "required": [
+            "email",
+            "password"
+          ],
+          "title": "LoginRequest",
+          "description": "Request schema for login endpoint."
+        },
+        "LoginResponse": {
+          "properties": {
+            "user_id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            },
+            "email": {
+              "type": "string",
+              "title": "Email"
+            },
+            "firstName": {
+              "type": "string",
+              "title": "Firstname"
+            },
+            "lastName": {
+              "type": "string",
+              "title": "Lastname"
+            },
+            "display_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Display Name"
+            },
+            "role": {
+              "type": "string",
+              "title": "Role"
+            },
+            "brand_id": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Brand Id"
+            },
+            "brand_name": {
+              "type": "string",
+              "title": "Brand Name"
+            },
+            "access_token": {
+              "type": "string",
+              "title": "Access Token"
+            },
+            "token_type": {
+              "type": "string",
+              "title": "Token Type",
+              "default": "Bearer"
+            }
+          },
+          "type": "object",
+          "required": [
+            "user_id",
+            "email",
+            "firstName",
+            "lastName",
+            "display_name",
+            "role",
+            "brand_id",
+            "brand_name",
+            "access_token"
+          ],
+          "title": "LoginResponse",
+          "description": "Response schema for login endpoint.",
+          "example": {
+            "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "brand_id": "a81b9834-631a-4638-b5b4-bf8aaed7ea7a",
+            "brand_name": "Acme Corp",
+            "display_name": "John Doe",
+            "email": "john@example.com",
+            "firstName": "John",
+            "lastName": "Doe",
+            "role": "brand_admin",
+            "token_type": "Bearer",
+            "user_id": "550e8400-e29b-41d4-a716-446655440000"
+          }
+        },
+        "RefreshTokenRequest": {
+          "properties": {
+            "refresh_token": {
+              "type": "string",
+              "title": "Refresh Token",
+              "description": "Refresh token from login"
+            }
+          },
+          "type": "object",
+          "required": [
+            "refresh_token"
+          ],
+          "title": "RefreshTokenRequest",
+          "description": "Refresh token request schema."
+        },
+        "RefreshTokenResponse": {
+          "properties": {
+            "access_token": {
+              "type": "string",
+              "title": "Access Token",
+              "description": "New JWT access token"
+            },
+            "token_type": {
+              "type": "string",
+              "title": "Token Type",
+              "description": "Token type",
+              "default": "Bearer"
+            },
+            "expires_in": {
+              "type": "integer",
+              "title": "Expires In",
+              "description": "Token expiry in seconds"
+            }
+          },
+          "type": "object",
+          "required": [
+            "access_token",
+            "expires_in"
+          ],
+          "title": "RefreshTokenResponse",
+          "description": "Refresh token response schema.",
+          "example": {
+            "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "expires_in": 3600,
+            "token_type": "Bearer"
+          }
+        },
+        "SendOTPRequest": {
+          "properties": {
+            "firstName": {
+              "type": "string",
+              "maxLength": 256,
+              "minLength": 1,
+              "title": "Firstname",
+              "description": "User first name"
+            },
+            "lastName": {
+              "type": "string",
+              "maxLength": 256,
+              "minLength": 1,
+              "title": "Lastname",
+              "description": "User last name"
+            },
+            "email": {
+              "type": "string",
+              "format": "email",
+              "title": "Email",
+              "description": "Email address to receive OTP"
+            }
+          },
+          "type": "object",
+          "required": [
+            "firstName",
+            "lastName",
+            "email"
+          ],
+          "title": "SendOTPRequest",
+          "description": "Request schema for sending OTP during signup.",
+          "example": {
+            "email": "john.doe@example.com",
+            "firstName": "John",
+            "lastName": "Doe"
+          }
+        },
+        "ValidationError": {
+          "properties": {
+            "loc": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "type": "array",
+              "title": "Location"
+            },
+            "msg": {
+              "type": "string",
+              "title": "Message"
+            },
+            "type": {
+              "type": "string",
+              "title": "Error Type"
+            }
+          },
+          "type": "object",
+          "required": [
+            "loc",
+            "msg",
+            "type"
+          ],
+          "title": "ValidationError"
+        },
+        "VerifyOTPAndSignupRequest": {
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email",
+              "title": "Email",
+              "description": "Email address"
+            },
+            "otp": {
+              "type": "string",
+              "maxLength": 6,
+              "minLength": 6,
+              "title": "Otp",
+              "description": "6-digit OTP code"
+            },
+            "firstName": {
+              "type": "string",
+              "maxLength": 256,
+              "minLength": 1,
+              "title": "Firstname",
+              "description": "User first name"
+            },
+            "lastName": {
+              "type": "string",
+              "maxLength": 256,
+              "minLength": 1,
+              "title": "Lastname",
+              "description": "User last name"
+            },
+            "password": {
+              "type": "string",
+              "minLength": 8,
+              "title": "Password",
+              "description": "User password"
+            },
+            "display_name": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Display Name",
+              "description": "User display name"
+            },
+            "brand_name": {
+              "type": "string",
+              "maxLength": 255,
+              "minLength": 1,
+              "title": "Brand Name",
+              "description": "Brand name"
+            },
+            "legal_company_name": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Legal Company Name",
+              "description": "Legal company name"
+            },
+            "address": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Address",
+              "description": "Business address"
+            },
+            "country": {
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 1,
+              "title": "Country",
+              "description": "Country",
+              "default": "Unknown"
+            },
+            "business_contact_email": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "email"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Business Contact Email",
+              "description": "Business contact email"
+            },
+            "business_phone": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 20
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Business Phone",
+              "description": "Business phone"
+            }
+          },
+          "type": "object",
+          "required": [
+            "email",
+            "otp",
+            "firstName",
+            "lastName",
+            "password",
+            "brand_name"
+          ],
+          "title": "VerifyOTPAndSignupRequest",
+          "description": "Request schema for verifying OTP and completing signup.",
+          "example": {
+            "address": "123 Business Street",
+            "brand_name": "John's Company",
+            "business_contact_email": "contact@johns.com",
+            "business_phone": "+1-555-0123",
+            "country": "USA",
+            "display_name": "John D",
+            "email": "john.doe@example.com",
+            "firstName": "John",
+            "lastName": "Doe",
+            "legal_company_name": "John's Company Pvt Ltd",
+            "otp": "123456",
+            "password": "SecurePass123!"
+          }
+        }
+      }
+    }
+  }
