@@ -64,8 +64,8 @@ export function AppLayout() {
       {/* USE THE NEW COMPONENT HERE */}
       <AppSidebar />
       <SidebarInset className="flex flex-1 flex-col overflow-hidden h-screen bg-background">
-        <Header />
         <main className="flex-1 overflow-y-auto">
+          <Header />
           <Outlet />
         </main>
       </SidebarInset>

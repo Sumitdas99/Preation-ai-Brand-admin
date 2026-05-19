@@ -1,4 +1,4 @@
-import { Bell, ChevronDown, Search, Moon, Sun } from "lucide-react";
+import { Bell, ChevronDown, Search, Moon, Sun, Menu } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { useRef } from "react";
 import gsap from "gsap";
@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { useNavigate } from "react-router-dom";
 import { toastSuccess } from "@/utils/toast";
 import { selectAuthUser, logout } from "@/context/slice/authSlice";
@@ -24,6 +24,7 @@ export function Header() {
   const dispatch = useDispatch();
   const user = useSelector(selectAuthUser);
   const { theme, setTheme } = useTheme();
+  const { toggleSidebar } = useSidebar();
   
   // Ref for the theme icon animation
   const themeIconRef = useRef<HTMLDivElement>(null);
@@ -96,10 +97,18 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between border-b border-border/30 bg-background/40 px-6 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.03)] supports-[backdrop-filter]:bg-background/40 transition-colors duration-300">
+    <header className="sticky top-4 z-50 mx-6 mt-4 flex h-14 shrink-0 items-center justify-between rounded-full border border-white/20 dark:border-zinc-800/40 bg-white/75 dark:bg-zinc-950/80 px-6 backdrop-blur-md shadow-[0_8px_32px_0_rgba(31,38,135,0.04)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.15)] transition-all duration-300">
       {/* Left Section - Trigger & Search */}
       <div className="flex items-center gap-4 flex-1 max-w-xl">
-        <SidebarTrigger className="-ml-2 text-muted-foreground hover:text-foreground transition-colors" />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleSidebar}
+          className="h-9 w-9 -ml-2 text-blue-500 hover:text-blue-600 hover:bg-white hover:border hover:border-blue-500 hover:shadow-sm dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-zinc-900 dark:hover:border-blue-500/50 rounded-full transition-all duration-200"
+        >
+          <Menu className="h-5 w-5" />
+          <span className="sr-only">Toggle Sidebar</span>
+        </Button>
         
         {/* <div className="relative flex-1 hidden md:block">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -144,7 +153,10 @@ export function Header() {
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="gap-3 px-2 py-1.5 hover:bg-secondary/60 rounded-full transition-all border border-transparent hover:border-border/30">
+            <Button
+              variant="ghost"
+              className="gap-3 px-3 py-1.5 hover:bg-zinc-100 hover:border-zinc-200 dark:hover:bg-zinc-900/60 dark:hover:border-zinc-800/80 rounded-full transition-all duration-200 border border-transparent shadow-none hover:shadow-sm"
+            >
               <Avatar className="h-8 w-8 ring-2 ring-background/80 ring-offset-1 ring-offset-background shadow-sm transition-shadow">
                 <AvatarFallback className="bg-primary/90 text-primary-foreground text-sm font-bold bg-gradient-to-br from-primary to-primary/70">
                   {getInitials(user?.name || getDisplayName())}
@@ -171,7 +183,7 @@ export function Header() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-border/40" />
-            <DropdownMenuItem onClick={() => navigate("/settings")} className="cursor-pointer rounded-md py-2.5 font-medium transition-colors hover:bg-secondary">
+            <DropdownMenuItem onClick={() => navigate("/settings")} className="cursor-pointer rounded-md py-2.5 font-medium transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800">
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-border/40" />
