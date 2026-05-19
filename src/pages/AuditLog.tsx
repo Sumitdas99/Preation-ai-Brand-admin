@@ -77,7 +77,7 @@ export default function AuditLog() {
   };
 
   return (
-    <div className="space-y-4 p-6 animate-fade-in">
+    <div className="space-y-4 p-4 md:p-6 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -91,19 +91,19 @@ export default function AuditLog() {
           Export Log
         </Button> */}
       </div>
-
+ 
       {/* Filters */}
       <Card className="card-shadow">
         <CardHeader>
           <CardTitle className="text-xl font-display">Filters</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSearch} className="flex gap-4">
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Search by asset name, action, resource, or status..."
-                className="pl-10"
+                className="pl-10 w-full"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -115,7 +115,7 @@ export default function AuditLog() {
                 setCurrentPage(1);
               }}
             >
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-full sm:w-[200px]">
                 <SelectValue placeholder="Action Type" />
               </SelectTrigger>
               <SelectContent>
@@ -126,11 +126,11 @@ export default function AuditLog() {
                 ))}
               </SelectContent>
             </Select>
-            <Button type="submit">Search</Button>
+            <Button type="submit" className="w-full sm:w-auto">Search</Button>
           </form>
         </CardContent>
       </Card>
-
+ 
       {/* Audit Events */}
       <Card className="card-shadow">
         <CardHeader className="flex flex-row items-center justify-between">
@@ -148,58 +148,60 @@ export default function AuditLog() {
             </div>
           ) : (
             <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Timestamp</TableHead>
-                    <TableHead>Asset Name</TableHead>
-                    <TableHead>User</TableHead>
-                    <TableHead>Action</TableHead>
-                    <TableHead>Resource</TableHead>
-                    <TableHead>Status</TableHead>
-                    {/* <TableHead>Details</TableHead> */}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {logs.map((log: any) => (
-                    <TableRow key={log.log_id}>
-                      <TableCell className="whitespace-nowrap">
-                        <div className="flex items-center gap-2 text-sm">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          {format(new Date(log.created_at), "MMM d, yyyy HH:mm:ss")}
-                        </div>
-                      </TableCell>
-                       <TableCell className="max-w-[240px] truncate text-sm">
-                        {log?.details?.filename || "-"}
-                      </TableCell>
-                      <TableCell className="text-sm max-w-[180px] truncate">
-                        {log.user_name || log.user_id || "System"}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
-                          {log.action}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{log.resource}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={log.status === "success" || log.status === "SUCCESS" ? "default" : "destructive"}
-                          className={log.status === "success" || log.status === "SUCCESS" ? "bg-green-500 hover:bg-green-600" : ""}
-                        >
-                          {log.status}
-                        </Badge>
-                      </TableCell>
-                      {/* <TableCell className="max-w-[300px] truncate text-sm text-muted-foreground">
-                        {log.details ? JSON.stringify(log.details) : "-"}
-                      </TableCell> */}
+              <div className="overflow-x-auto w-full">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Timestamp</TableHead>
+                      <TableHead>Asset Name</TableHead>
+                      <TableHead>User</TableHead>
+                      <TableHead>Action</TableHead>
+                      <TableHead>Resource</TableHead>
+                      <TableHead>Status</TableHead>
+                      {/* <TableHead>Details</TableHead> */}
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {logs.map((log: any) => (
+                      <TableRow key={log.log_id}>
+                        <TableCell className="whitespace-nowrap">
+                          <div className="flex items-center gap-2 text-sm">
+                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                            {format(new Date(log.created_at), "MMM d, yyyy HH:mm:ss")}
+                          </div>
+                        </TableCell>
+                         <TableCell className="max-w-[240px] truncate text-sm">
+                          {log?.details?.filename || "-"}
+                        </TableCell>
+                        <TableCell className="text-sm max-w-[180px] truncate">
+                          {log.user_name || log.user_id || "System"}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
+                            {log.action}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium">{log.resource}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={log.status === "success" || log.status === "SUCCESS" ? "default" : "destructive"}
+                            className={log.status === "success" || log.status === "SUCCESS" ? "bg-green-500 hover:bg-green-600" : ""}
+                          >
+                            {log.status}
+                          </Badge>
+                        </TableCell>
+                        {/* <TableCell className="max-w-[300px] truncate text-sm text-muted-foreground">
+                          {log.details ? JSON.stringify(log.details) : "-"}
+                        </TableCell> */}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
 
               <DataTablePagination
                 currentPage={currentPage}

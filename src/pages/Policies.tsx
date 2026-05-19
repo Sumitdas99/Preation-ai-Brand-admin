@@ -666,17 +666,17 @@ export default function Policies() {
   };
 
   return (
-    <div className="space-y-4 p-6 animate-fade-in">
+    <div className="space-y-4 p-4 md:p-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-bold">Policies</h1>
           <p className="mt-1 text-muted-foreground">Configure compliance policies and thresholds</p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="w-[250px] flex justify-end">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full lg:w-auto lg:justify-end">
+          <div className="w-full sm:w-64">
             {/* Brand Display */}
-            <div className="flex h-9 items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm opacity-80 min-w-[200px]">
+            <div className="flex h-9 items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm opacity-80 w-full">
               <span className="font-medium truncate" title={user?.brandName}>
                 {user?.brandName || "Assigned Brand"}
               </span>
@@ -684,7 +684,7 @@ export default function Policies() {
             </div>
           </div>
           <Button
-            className="bg-gradient-primary"
+            className="bg-gradient-primary w-full sm:w-auto shrink-0"
             onClick={handleSave}
             disabled={!brandId || isSaving || isLoadingBrand}
           >

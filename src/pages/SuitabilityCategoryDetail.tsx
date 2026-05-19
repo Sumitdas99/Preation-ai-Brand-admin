@@ -1,5 +1,13 @@
 import { Fragment, useEffect, useMemo, useRef } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams, Link } from "react-router-dom";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import {
   CategoryDetailFooter,
   CategoryHeaderBanner,
@@ -111,12 +119,60 @@ function PageBody({ data }: PageBodyProps) {
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-background">
-      <TopBar
-        assetFilename={data.topBar.assetFilename}
-        workspace={data.topBar.workspaceLabel}
-        breadcrumbTail={data.breadcrumbTail}
-      />
+    <div className="flex h-[calc(100vh-80px)] min-h-0 flex-col overflow-hidden bg-background">
+      {/* Integrated Breadcrumb Header */}
+      <div className="px-6 py-4 border-b bg-card/30 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/dashboard">Dashboard</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/assets">Recent Assets</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              {runId && (
+                <>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbLink asChild>
+                      <Link to={`/preflight/${runId}`}>Pre-Flight Scan</Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbLink asChild>
+                      <Link to={`/suitability/${runId}/results`}>Brand Suitability</Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                </>
+              )}
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>{data.breadcrumbTail}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </Breadcrumb>
+          </Breadcrumb>
+          <h1 className="text-xl font-bold font-display mt-2 tracking-tight">
+            Suitability Category Details
+          </h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="shrink-0 whitespace-nowrap rounded-md border border-border bg-secondary/10 px-3 py-1.5 text-xs font-semibold text-foreground">
+            Role: Reviewer
+          </span>
+          {data.topBar.workspaceLabel && (
+            <span className="shrink-0 whitespace-nowrap rounded-md border border-border bg-secondary/10 px-3 py-1.5 text-xs font-semibold text-foreground">
+              {data.topBar.workspaceLabel}
+            </span>
+          )}
+        </div>
+      </div>
 
       <main
         ref={mainRef}

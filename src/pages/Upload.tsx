@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   Upload as UploadIcon,
   FileVideo,
@@ -77,6 +77,7 @@ interface UploadController {
 }
  
 export default function Upload() {
+  const navigate = useNavigate();
   const userRole = useSelector(selectUserRole);
   const user = useSelector(selectAuthUser);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -460,7 +461,7 @@ export default function Upload() {
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
                 className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors
-                  border-border bg-secondary/30 hover:border-primary hover:bg-accent/50
+                  border-border bg-white hover:bg-gray-100/80 dark:bg-black dark:hover:bg-neutral-900/80 hover:border-primary
                   p-8 min-h-[200px]`}
               >
                 <UploadIcon className="h-12 w-12 text-muted-foreground" />
@@ -554,7 +555,7 @@ export default function Upload() {
     <Button
       variant="default"
       size="sm"
-      onClick={() => window.open(`/preflight/${file.assetId}`, "_blank")}
+      onClick={() => navigate(`/preflight/${file.assetId}`)}
       className="gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-sm"
     >
       <Play className="h-3.5 w-3.5" />

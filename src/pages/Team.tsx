@@ -490,9 +490,9 @@ export default function Team() {
 
 
   return (
-    <div className="space-y-4 p-6 animate-fade-in">
+    <div className="space-y-4 p-4 md:p-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-bold">Team & Roles</h1>
           <p className="mt-1 text-muted-foreground">
@@ -656,13 +656,13 @@ export default function Team() {
       {/* Team Members */}
       <Card className="card-shadow">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <CardTitle className="text-xl font-display">Team Members</CardTitle>
-            <div className="relative w-64">
+            <div className="relative w-full sm:w-64">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Search members..."
-                className="pl-10"
+                className="pl-10 w-full"
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -679,90 +679,91 @@ export default function Team() {
               <p className="text-muted-foreground">Loading team members...</p>
             </div>
           ) : (
-            <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Full Name</TableHead>
-                    <TableHead>Work Email</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Last Active</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {teamMembers.length === 0 ? (
+            <>              <div className="overflow-x-auto w-full">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                        No team members found
-                      </TableCell>
+                      <TableHead>Full Name</TableHead>
+                      <TableHead>Work Email</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Last Active</TableHead>
+                      <TableHead className="w-[50px]"></TableHead>
                     </TableRow>
-                  ) : (
-                    teamMembers.map((member) => (
-                      <TableRow key={member.id}>
-                        <TableCell>
-                          <p className="font-medium">{member.name || "—"}</p>
-                        </TableCell>
-                        <TableCell>
-                          <p className="text-sm text-muted-foreground">{member.email}</p>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{member.role}</Badge>
-                        </TableCell>
-
-                        <TableCell>
-                          <Badge
-                            variant={member.status === "active" ? "default" : "secondary"}
-                            className={
-                              member.status === "active"
-                                ? "status-pass"
-                                : "bg-muted text-muted-foreground"
-                            }
-                          >
-                            {member.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {member.lastActive}
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleEditRoleClick(member)}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit Role
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleToggleActive(member)}>
-                                {member.status === "active" ? (
-                                  <>
-                                    <PowerOff className="mr-2 h-4 w-4" />
-                                    Deactivate
-                                  </>
-                                ) : (
-                                  <>
-                                    <Power className="mr-2 h-4 w-4" />
-                                    Activate
-                                  </>
-                                )}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleViewDetails(member)}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                  </TableHeader>
+                  <TableBody>
+                    {teamMembers.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                          No team members found
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+                    ) : (
+                      teamMembers.map((member) => (
+                        <TableRow key={member.id}>
+                          <TableCell>
+                            <p className="font-medium">{member.name || "—"}</p>
+                          </TableCell>
+                          <TableCell>
+                            <p className="text-sm text-muted-foreground">{member.email}</p>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{member.role}</Badge>
+                          </TableCell>
+ 
+                          <TableCell>
+                            <Badge
+                              variant={member.status === "active" ? "default" : "secondary"}
+                              className={
+                                member.status === "active"
+                                  ? "status-pass"
+                                  : "bg-muted text-muted-foreground"
+                              }
+                            >
+                              {member.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {member.lastActive}
+                          </TableCell>
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleEditRoleClick(member)}>
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  Edit Role
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleToggleActive(member)}>
+                                  {member.status === "active" ? (
+                                    <>
+                                      <PowerOff className="mr-2 h-4 w-4" />
+                                      Deactivate
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Power className="mr-2 h-4 w-4" />
+                                      Activate
+                                    </>
+                                  )}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleViewDetails(member)}>
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  View Details
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
 
               <DataTablePagination
                 currentPage={membersPage}
@@ -795,13 +796,13 @@ export default function Team() {
       {!loadingInvitedUsers && invitedUsers.length > 0 && (
         <Card className="card-shadow">
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <CardTitle className="text-xl font-display">Invited Users</CardTitle>
-              <div className="relative w-64">
+              <div className="relative w-full sm:w-64">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   placeholder="Search invited users..."
-                  className="pl-10"
+                  className="pl-10 w-full"
                   value={invitedUsersSearchQuery}
                   onChange={(e) => {
                     setInvitedUsersSearchQuery(e.target.value);
@@ -818,48 +819,50 @@ export default function Team() {
               </div>
             ) : (
               <>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Full Name</TableHead>
-                      <TableHead>Work Email</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Invited On</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paginatedInvitedUsers.map((invite: any) => {
-                      const fullName = invite.first_name && invite.last_name
-                        ? `${invite.first_name} ${invite.last_name}`
-                        : invite.first_name || invite.last_name || "—";
-                      return (
-                        <TableRow key={invite.invite_id || invite.email}>
-                          <TableCell className="text-sm font-medium">
-                            {fullName}
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
-                            {invite.email}
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {mapRoleToDisplayName(invite.role)}
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
-                            {formatDate(invite.created_at)}
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              variant="outline"
-                              className="bg-yellow-50 text-yellow-700 border-yellow-200 capitalize"
-                            >
-                              pending
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+                <div className="overflow-x-auto w-full">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Full Name</TableHead>
+                        <TableHead>Work Email</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead>Invited On</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {paginatedInvitedUsers.map((invite: any) => {
+                        const fullName = invite.first_name && invite.last_name
+                          ? `${invite.first_name} ${invite.last_name}`
+                          : invite.first_name || invite.last_name || "—";
+                        return (
+                          <TableRow key={invite.invite_id || invite.email}>
+                            <TableCell className="text-sm font-medium">
+                              {fullName}
+                            </TableCell>
+                            <TableCell className="text-sm text-muted-foreground">
+                              {invite.email}
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              {mapRoleToDisplayName(invite.role)}
+                            </TableCell>
+                            <TableCell className="text-sm text-muted-foreground">
+                              {formatDate(invite.created_at)}
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant="outline"
+                                className="bg-yellow-50 text-yellow-700 border-yellow-200 capitalize"
+                              >
+                                pending
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
 
                 <DataTablePagination
                   currentPage={invitedUsersPage}

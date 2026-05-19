@@ -1,5 +1,13 @@
 import { Fragment, useEffect, useId, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import {
   AllowedSummaryCard,
   AssetContextStrip,
@@ -102,11 +110,54 @@ function PageBody({ data, runId }: PageBodyProps) {
   const handleBack = () => navigate(`/preflight/${runId}`);
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-background">
-      <TopBar
-        assetFilename={data.topBar.assetFilename}
-        workspace={data.topBar.workspaceLabel}
-      />
+    <div className="flex h-[calc(100vh-80px)] min-h-0 flex-col overflow-hidden bg-background">
+      {/* Integrated Breadcrumb Header */}
+      <div className="px-6 py-4 border-b bg-card/30 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/dashboard">Dashboard</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/assets">Recent Assets</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              {runId && (
+                <>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbLink asChild>
+                      <Link to={`/preflight/${runId}`}>Pre-Flight Scan</Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                </>
+              )}
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Brand Suitability</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <h1 className="text-xl font-bold font-display mt-2 tracking-tight">
+            Brand Suitability Results
+          </h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="shrink-0 whitespace-nowrap rounded-md border border-border bg-secondary/10 px-3 py-1.5 text-xs font-semibold text-foreground">
+            Role: Reviewer
+          </span>
+          {data.topBar.workspaceLabel && (
+            <span className="shrink-0 whitespace-nowrap rounded-md border border-border bg-secondary/10 px-3 py-1.5 text-xs font-semibold text-foreground">
+              {data.topBar.workspaceLabel}
+            </span>
+          )}
+        </div>
+      </div>
 
       <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6 sm:px-6 lg:px-10">
         <div className="mx-auto w-full max-w-[1080px] space-y-5">
@@ -206,56 +257,4 @@ function PageBody({ data, runId }: PageBodyProps) {
   );
 }
 
-interface TopBarProps {
-  assetFilename: string;
-  workspace?: string;
-}
 
-function TopBar({ assetFilename, workspace }: TopBarProps) {
-  const trail = ["Asset Library", "Pre-Flight", assetFilename, "Brand Suitability Results"];
-  const lastIndex = trail.length - 1;
-  return (
-    <header className="flex h-16 shrink-0 items-center gap-4 overflow-hidden bg-[#0A1F44] px-6 text-white shadow-sm">
-      <span className="shrink-0 whitespace-nowrap font-display text-lg font-semibold tracking-tight">
-        Praetion <span className="text-[#7BB4E2]">AI</span>
-      </span>
-      <span className="h-5 w-px shrink-0 bg-white/20" aria-hidden />
-      <nav
-        aria-label="Breadcrumb"
-        className="flex min-w-0 flex-1 items-center gap-2 text-sm text-white/70"
-      >
-        {trail.map((item, i) => {
-          const isLast = i === lastIndex;
-          return (
-            <Fragment key={i}>
-              {i > 0 ? (
-                <span aria-hidden className="hidden shrink-0 text-white/40 md:inline">
-                  →
-                </span>
-              ) : null}
-              <span
-                className={cn(
-                  isLast
-                    ? "min-w-0 flex-1 truncate font-medium text-white"
-                    : "hidden shrink-0 whitespace-nowrap md:inline",
-                )}
-              >
-                {item}
-              </span>
-            </Fragment>
-          );
-        })}
-      </nav>
-      <div className="ml-auto flex shrink-0 items-center gap-2">
-        <span className="shrink-0 whitespace-nowrap rounded-md border-[1.5px] border-white/40 bg-white/5 px-4 py-1.5 text-xs font-medium text-white">
-          Reviewer
-        </span>
-        {workspace ? (
-          <span className="shrink-0 whitespace-nowrap rounded-md border-[1.5px] border-white/40 bg-white/5 px-4 py-1.5 text-xs font-medium text-white">
-            Workspace: {workspace}
-          </span>
-        ) : null}
-      </div>
-    </header>
-  );
-}

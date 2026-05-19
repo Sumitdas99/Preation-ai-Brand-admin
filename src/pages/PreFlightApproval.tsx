@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   getMockScenario,
@@ -13,7 +13,14 @@ import { DEV_SCENARIOS } from "@/components/preflight/dev/devScenarios";
 import { MainArea } from "@/components/preflight/layout/MainArea";
 import { PreFlightSidebar } from "@/components/preflight/layout/PreFlightSidebar";
 import { StageBanner } from "@/components/preflight/layout/StageBanner";
-import { TopBar } from "@/components/preflight/layout/TopBar";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import {
   ViewerRoleContext,
   ViewerRole,
@@ -216,8 +223,45 @@ function PageBody(props: PageBodyProps) {
 
   return (
     <PreFlightActionsContext.Provider value={actionsValue}>
-      <div className="flex h-full min-h-0 flex-col overflow-hidden bg-background">
-        <TopBar data={props.data.topBar} />
+      <div className="flex h-[calc(100vh-80px)] min-h-0 flex-col overflow-hidden bg-background">
+        {/* Integrated Breadcrumb Header */}
+        <div className="px-6 py-4 border-b bg-card/30 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link to="/dashboard">Dashboard</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link to="/assets">Recent Assets</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Pre-Flight Scan</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+            <h1 className="text-xl font-bold font-display mt-2 tracking-tight">
+              Pre-Flight Scan
+            </h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="shrink-0 whitespace-nowrap rounded-md border border-border bg-secondary/10 px-3 py-1.5 text-xs font-semibold text-foreground">
+              Role: {props.viewerRole}
+            </span>
+            {props.data.topBar.workspace && (
+              <span className="shrink-0 whitespace-nowrap rounded-md border border-border bg-secondary/10 px-3 py-1.5 text-xs font-semibold text-foreground">
+                {props.data.topBar.workspace}
+              </span>
+            )}
+          </div>
+        </div>
+
         <StageBanner data={props.data.banner} />
 
         <div className="flex flex-1 overflow-hidden">

@@ -1,4 +1,5 @@
 import { AlertCircle, AlertTriangle, Pencil } from "lucide-react";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import type {
   DetectionPillTone,
@@ -100,6 +101,18 @@ function CellContent({ cell }: { cell: RequirementGridCell }) {
 
   if (cell.kind === "link") {
     if (cell.href) {
+      const isInternal = cell.href.startsWith("/");
+      if (isInternal) {
+        return (
+          <Link
+            to={cell.href}
+            className="inline-flex items-center gap-1.5 text-base font-medium text-blue-700 underline underline-offset-2 hover:text-blue-800"
+          >
+            {cell.text}
+            <Pencil className="h-3.5 w-3.5" aria-hidden />
+          </Link>
+        );
+      }
       return (
         <a
           href={cell.href}

@@ -35,56 +35,56 @@ import BrandSettings from "../pages/brand/BrandSettings";
 
 const privateRoutes: RouteObject[] = [
   {
-    path: "/preflight/:id",
-    element: <PreFlightApproval />,
-  },
-  {
-    path: "/disclosure/:id",
-    element: <DisclosureSpec />,
-  },
-  {
-    path: "/consent/:id",
-    element: <Consent />,
-  },
-  {
-    path: "/proof/:id",
-    element: <UploadProof />,
-  },
-  {
-    path: "/settings/policy-thresholds",
-    element: <PolicyThresholds />,
-  },
-  {
-    path: "/suitability/:runId/results",
-    element: <SuitabilityResults />,
-  },
-  {
-    path: "/suitability/:runId/category/:categoryKey",
-    element: <SuitabilityCategoryDetail />,
-  },
-  {
-    path: "/approvals",
-    element: <LegalDashboard />,
-  },
-  {
-    path: "/evidence/:packId/preview",
-    element: <EvidencePackPreviewPage />,
-  },
-  {
-    path: "/super-admin/brand-packs/new",
-    element: <SuperAdminBrandPackOnboard />,
-  },
-  {
-    path: "/super-admin/brand-packs/:brandId",
-    element: <SuperAdminBrandPacks />,
-  },
-  {
-    path: "/super-admin/brand-packs",
-    element: <SuperAdminBrandPacks />,
-  },
-  {
     element: <AppLayout />,
     children: [
+      {
+        path: "/preflight/:id",
+        element: <PreFlightApproval />,
+      },
+      {
+        path: "/disclosure/:id",
+        element: <DisclosureSpec />,
+      },
+      {
+        path: "/consent/:id",
+        element: <Consent />,
+      },
+      {
+        path: "/proof/:id",
+        element: <UploadProof />,
+      },
+      {
+        path: "/settings/policy-thresholds",
+        element: <PolicyThresholds />,
+      },
+      {
+        path: "/suitability/:runId/results",
+        element: <SuitabilityResults />,
+      },
+      {
+        path: "/suitability/:runId/category/:categoryKey",
+        element: <SuitabilityCategoryDetail />,
+      },
+      {
+        path: "/approvals",
+        element: <LegalDashboard />,
+      },
+      {
+        path: "/evidence/:packId/preview",
+        element: <EvidencePackPreviewPage />,
+      },
+      {
+        path: "/super-admin/brand-packs/new",
+        element: <SuperAdminBrandPackOnboard />,
+      },
+      {
+        path: "/super-admin/brand-packs/:brandId",
+        element: <SuperAdminBrandPacks />,
+      },
+      {
+        path: "/super-admin/brand-packs",
+        element: <SuperAdminBrandPacks />,
+      },
       {
         path: "/dashboard",
         element: <Dashboard />,

@@ -242,7 +242,7 @@ export default function Assets() {
   });
 
   return (
-    <div className="space-y-4 p-6 animate-fade-in">
+    <div className="space-y-4 p-4 md:p-6 animate-fade-in w-full max-w-full overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -256,22 +256,22 @@ export default function Assets() {
           Export List
         </Button> */}
       </div>
-
+ 
       {/* Search and Filters */}
-      <Card className="card-shadow">
+      <Card className="card-shadow w-full min-w-0 overflow-hidden">
         <CardContent className="py-4">
-          <div className="flex gap-4 mb-5">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-5">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Search assets..."
-                className="pl-10"
+                className="pl-10 w-full"
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
               />
             </div>
             <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px]">
                 <Filter className="mr-2 h-4 w-4" />
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
@@ -300,11 +300,11 @@ export default function Assets() {
                   </CardContent>
                 </div>
               ) : (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full min-w-0">
                   {filteredAssets.map((asset) => (
                     <Card
                       key={asset.id}
-                      className="group relative rounded-2xl border border-border bg-card p-5
+                      className="group relative rounded-2xl border border-border bg-card p-5 w-full min-w-0 overflow-hidden
     transition-all duration-300 cursor-pointer
     hover:-translate-y-1
     hover:border-[#0B3C8A]/60
@@ -312,14 +312,14 @@ export default function Assets() {
                     >
                       <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                       {/* Header */}
-                      <div className="flex items-start justify-between">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-secondary text-3xl">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-secondary text-3xl shrink-0">
                           {asset.thumbnail}
                         </div>
-
+ 
                         <Badge
                           variant="outline"
-                          className={`px-3 py-1 text-xs font-medium rounded-full
+                          className={`px-3 py-1 text-xs font-medium rounded-full truncate shrink-0 max-w-[150px]
             ${asset.statusVariant === "pass"
                               ? "border-green-300 bg-green-50 text-green-700"
                               : asset.statusVariant === "flag"
@@ -335,16 +335,16 @@ export default function Assets() {
                           {asset.statusLabel}
                         </Badge>
                       </div>
-
+ 
                       {/* Title & Metadata */}
-                      <div className="mt-4 pb-3 border-b">
-                        <p className="font-semibold truncate" title={asset.title}>{asset.title}</p>
-                        <div className="text-xs text-muted-foreground mt-1 space-y-0.5">
-                          <p>
+                      <div className="mt-4 pb-3 border-b min-w-0">
+                        <p className="font-semibold truncate w-full" title={asset.title}>{asset.title}</p>
+                        <div className="text-xs text-muted-foreground mt-1 space-y-0.5 min-w-0">
+                          <p className="truncate w-full">
                             {asset.typeLabel}
                             {asset.resolutionDuration && ` • ${asset.resolutionDuration}`}
                           </p>
-                          <p>{asset.distributionInfo}</p>
+                          <p className="truncate w-full">{asset.distributionInfo}</p>
                         </div>
                       </div>
 

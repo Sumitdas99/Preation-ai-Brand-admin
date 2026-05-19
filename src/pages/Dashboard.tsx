@@ -292,7 +292,80 @@ export default function Dashboard() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
+          {/* Card list for mobile screens */}
+          <div className="md:hidden divide-y divide-border animate-fade-in">
+            {recentAssets.map((asset) => (
+              <div
+                key={asset.id}
+                className="p-4 space-y-3 cursor-pointer hover:bg-muted/30 transition-colors"
+                onClick={() => navigate(`/assets`)}
+              >
+                {/* Header: thumbnail, name, status badge */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex gap-2.5 items-center min-w-0">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                      {asset.thumbnail}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold truncate text-foreground" title={asset.name}>
+                        {asset.name}
+                      </p>
+                      <span className="text-[11px] text-muted-foreground">
+                        {asset.timestamp}
+                      </span>
+                    </div>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className={`
+                      text-[11px] font-medium shrink-0 px-2.5 py-0.5 rounded-full
+                      ${asset.status === "pass"
+                        ? "border-green-300 bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400"
+                        : asset.status === "flag"
+                          ? "border-yellow-300 bg-yellow-50 text-yellow-700 dark:bg-yellow-950/20 dark:text-yellow-400"
+                          : asset.status === "block"
+                            ? "border-red-300 bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-400"
+                            : "border-slate-300 bg-slate-50 text-slate-600 dark:bg-slate-900 dark:text-slate-400"
+                      }
+                    `}
+                  >
+                    {asset.status === "pass"
+                      ? "Pass"
+                      : asset.status === "flag"
+                        ? "Review"
+                        : asset.status === "block"
+                          ? "Block"
+                          : "Processing"}
+                  </Badge>
+                </div>
+
+                {/* Details grid: Synthetic, C2PA, Suitability */}
+                <div className="grid grid-cols-3 gap-2 pt-1 text-[12px]">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[10px] uppercase font-semibold tracking-wider text-muted-foreground">Synthetic</span>
+                    <span className="font-medium text-foreground/90">
+                      {asset.synthetic !== null ? `${asset.synthetic}%` : "-"}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[10px] uppercase font-semibold tracking-wider text-muted-foreground">C2PA</span>
+                    <span className="font-medium text-foreground/90">
+                      {asset.c2pa === null ? "-" : asset.c2pa ? "✓ Present" : "✗ Missing"}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[10px] uppercase font-semibold tracking-wider text-muted-foreground">Suitability</span>
+                    <span className="font-medium text-foreground/90 truncate" title={asset.suitability || ""}>
+                      {asset.suitability}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full border-collapse">
               {/* TABLE HEADER */}
               <thead>

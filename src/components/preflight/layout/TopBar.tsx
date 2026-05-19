@@ -1,10 +1,12 @@
 import { Fragment } from "react";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TopBar as TopBarData } from "../types";
 import { useViewerRole } from "../viewerRole";
 
 const BAR =
-  "flex h-16 shrink-0 items-center gap-4 bg-[#0A1F44] px-6 text-white shadow-sm overflow-hidden";
+  "flex h-16 shrink-0 items-center gap-3 bg-[#0A1F44] px-4 md:px-6 text-white shadow-sm overflow-hidden";
 
 const PILL =
   "shrink-0 whitespace-nowrap rounded-md border-[1.5px] border-white/40 bg-white/5 px-4 py-1.5 text-xs font-medium text-white";
@@ -20,11 +22,19 @@ export function TopBar({ data }: Props) {
 
   return (
     <header className={BAR}>
-      <span className="shrink-0 whitespace-nowrap font-display text-lg font-semibold tracking-tight">
+      <Link
+        to="/dashboard"
+        className="flex items-center justify-center text-white/70 hover:text-white transition-colors bg-white/10 hover:bg-white/15 border border-white/10 rounded-lg p-2 mr-1 shrink-0"
+        title="Exit to Dashboard"
+      >
+        <ArrowLeft className="h-4 w-4" />
+      </Link>
+
+      <span className="shrink-0 whitespace-nowrap font-display text-sm sm:text-lg font-semibold tracking-tight hidden sm:inline">
         Praetion <span className="text-[#7BB4E2]">AI</span>
       </span>
 
-      <span className="h-5 w-px shrink-0 bg-white/20" aria-hidden />
+      <span className="h-5 w-px shrink-0 bg-white/20 hidden sm:inline" aria-hidden />
 
       <nav
         aria-label="Breadcrumb"

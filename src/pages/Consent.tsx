@@ -1,5 +1,13 @@
 import { useEffect, useMemo } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams, Link } from "react-router-dom";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import type {
   ConsentSpec,
   HumanPresenceSubmission,
@@ -9,7 +17,6 @@ import {
   Briefing,
   HumanPresenceCard,
   RplCard,
-  TopBar,
 } from "@/components/consent";
 import {
   ViewerRoleContext,
@@ -74,6 +81,7 @@ export default function Consent() {
         onSubmitRpl={(body) => rplMutation.mutate(body)}
         onSubmitHp={(body) => hpMutation.mutate(body)}
         specId={specId}
+        runId={runId}
       />
     </ViewerRoleContext.Provider>
   );
@@ -89,6 +97,7 @@ interface PageBodyProps {
   onSubmitRpl: (body: RplSubmission) => void;
   onSubmitHp: (body: HumanPresenceSubmission) => void;
   specId: string;
+  runId?: string;
 }
 
 function PageBody({
@@ -99,6 +108,7 @@ function PageBody({
   onSubmitRpl,
   onSubmitHp,
   specId,
+  runId,
 }: PageBodyProps) {
   const data = useMemo(
     () =>
@@ -110,8 +120,49 @@ function PageBody({
   );
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden bg-background">
-      <TopBar data={data.topBar} />
+    <div className="flex h-[calc(100vh-80px)] min-h-0 flex-col overflow-hidden bg-background">
+      {/* Integrated Breadcrumb Header */}
+      <div className="px-6 py-4 border-b bg-card/30 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/dashboard">Dashboard</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/assets">Recent Assets</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              {runId && (
+                <>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbLink asChild>
+                      <Link to={`/preflight/${runId}`}>Pre-Flight Scan</Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                </>
+              )}
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Consent & Presence</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <h1 className="text-xl font-bold font-display mt-2 tracking-tight">
+            Consent & Presence Specification
+          </h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="shrink-0 whitespace-nowrap rounded-md border border-border bg-secondary/10 px-3 py-1.5 text-xs font-semibold text-foreground">
+            Role: {role}
+          </span>
+        </div>
+      </div>
 
       <main className="min-h-0 flex-1 transform-gpu overflow-y-auto overscroll-contain">
         <div
