@@ -156,7 +156,7 @@ function PageBody({ data }: PageBodyProps) {
               <BreadcrumbItem>
                 <BreadcrumbPage>{data.breadcrumbTail}</BreadcrumbPage>
               </BreadcrumbItem>
-            </Breadcrumb>
+            </BreadcrumbList>
           </Breadcrumb>
           <h1 className="text-xl font-bold font-display mt-2 tracking-tight">
             Suitability Category Details
@@ -193,71 +193,5 @@ function PageBody({ data }: PageBodyProps) {
         </div>
       </main>
     </div>
-  );
-}
-
-interface TopBarProps {
-  assetFilename: string;
-  workspace?: string;
-  breadcrumbTail: string;
-}
-
-function TopBar({ assetFilename, workspace, breadcrumbTail }: TopBarProps) {
-  const trail = [
-    "Pre-Flight",
-    "Brand Suitability Results",
-    breadcrumbTail,
-  ];
-  const lastIndex = trail.length - 1;
-  return (
-    <header className="flex h-16 shrink-0 items-center gap-4 overflow-hidden bg-[#0A1F44] px-6 text-white shadow-sm">
-      <span className="shrink-0 whitespace-nowrap font-display text-lg font-semibold tracking-tight">
-        Praetion <span className="text-[#7BB4E2]">AI</span>
-      </span>
-      <span className="h-5 w-px shrink-0 bg-white/20" aria-hidden />
-      <nav
-        aria-label="Breadcrumb"
-        className="flex min-w-0 flex-1 items-center gap-2 text-sm text-white/70"
-      >
-        {trail.map((item, i) => {
-          const isLast = i === lastIndex;
-          return (
-            <Fragment key={i}>
-              {i > 0 ? (
-                <span
-                  aria-hidden
-                  className="hidden shrink-0 text-white/40 md:inline"
-                >
-                  →
-                </span>
-              ) : null}
-              <span
-                className={cn(
-                  isLast
-                    ? "min-w-0 flex-1 truncate font-medium text-white"
-                    : "hidden shrink-0 whitespace-nowrap md:inline",
-                )}
-                title={isLast ? item : undefined}
-              >
-                {item}
-              </span>
-            </Fragment>
-          );
-        })}
-      </nav>
-      <div className="ml-auto flex shrink-0 items-center gap-2">
-        <span className="shrink-0 whitespace-nowrap rounded-md border-[1.5px] border-white/40 bg-white/5 px-4 py-1.5 text-xs font-medium text-white">
-          Reviewer
-        </span>
-        {workspace ? (
-          <span
-            className="shrink-0 whitespace-nowrap rounded-md border-[1.5px] border-white/40 bg-white/5 px-4 py-1.5 text-xs font-medium text-white"
-            title={`Asset: ${assetFilename}`}
-          >
-            Workspace: {workspace}
-          </span>
-        ) : null}
-      </div>
-    </header>
   );
 }
