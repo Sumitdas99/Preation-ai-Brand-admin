@@ -28,6 +28,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface NavItem {
   name: string;
@@ -124,23 +125,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" className="hover:bg-sidebar-accent">
-              <div className="flex flex-col gap-1 leading-none w-full p-1">
-                <span className="font-semibold text-sm">
-                  {brandName}
-                </span>
-                {user && (
-                  <span className="text-xs text-muted-foreground capitalize">
-                    {user.role?.replace("_", " ").toLowerCase()}
-                  </span>
-                )}
-              </div>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+      <SidebarFooter className="border-t border-sidebar-border p-4">
+        <div className="flex items-center justify-between rounded-lg bg-sidebar-accent p-3">
+          <div className="flex flex-col gap-1 leading-none">
+            <span className="font-semibold text-sm text-sidebar-primary">
+              {brandName}
+            </span>
+            {user && (
+              <span className="text-xs text-sidebar-foreground/60 capitalize">
+                {user.role?.replace("_", " ").toLowerCase()}
+              </span>
+            )}
+          </div>
+          <ThemeToggle />
+        </div>
       </SidebarFooter>
     </Sidebar>
   );

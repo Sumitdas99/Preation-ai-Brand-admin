@@ -118,9 +118,9 @@ export function deriveDashboardTone(
   brand: BrandDetail,
   status: PaymentStatus,
 ): DashboardTone {
+  if (!status.payment_configured) return "welcome-payment-required";
   if (status.subscription_status === "SUSPENDED") return "suspended";
   if (status.subscription_status === "PAST_DUE") return "past-due";
-  if (!status.payment_configured) return "welcome-payment-required";
   if (status.payment_configured && !status.stripe_subscription_id) {
     return "welcome-activate";
   }
@@ -236,85 +236,124 @@ function packGridForState(
   const failedAt = status.failed_invoice_at ?? brand.last_payment_failure_at;
 
   if (tone === "welcome-payment-required") {
-    return compact([
-      cell("Pack type", packType ? packTypeLabel[packType] : "—", "highlight"),
-      cell(
-        packType === "TRIAL" ? "Trial period" : "Cycle",
-        packType === "TRIAL"
-          ? `Until ${formatDate(trialEnd)}`
-          : formatCycleRange(brand.cycle_start, brand.cycle_end) ?? "—",
-      ),
-      cell(
-        packType === "TRIAL" ? "First charge date" : "Next charge",
-        packType === "TRIAL"
-          ? formatDate(firstChargeIso)
-          : formatDate(nextChargeDate),
-      ),
-      cell(
-        "Monthly price (post-trial)",
-        formatMoney(monthlyPrice, currency) +
-          (monthlyPrice ? " / month" : ""),
-      ),
-      cell(
-        "Image scan limit",
-        imageLimit !== undefined ? `${imageLimit.toLocaleString()} / cycle` : "—",
-      ),
-      cell(
-        "Video limit",
-        videoLimit !== undefined ? `${videoLimit.toLocaleString()} min / cycle` : "—",
-      ),
-    ]);
+    if (packType === "TRIAL") {
+      return compact([
+        cell("Pack type", packType ? packTypeLabel[packType] : "—", "highlight"),
+        cell("Trial expires", formatDate(trialEnd)),
+        cell(
+          "First charge",
+          firstChargeIso
+            ? `${formatDate(firstChargeIso)}${
+                monthlyPrice !== undefined
+                  ? ` · ${formatMoney(monthlyPrice, currency)}`
+                  : ""
+              }`
+            : "—",
+        ),
+        cell(
+          "Monthly price (post-trial)",
+          monthlyPrice !== undefined ? `${formatMoney(monthlyPrice, currency)} / month` : "—",
+        ),
+        cell(
+          "Post-trial image limit",
+          imageLimit !== undefined ? `${imageLimit.toLocaleString()} / cycle` : "—",
+        ),
+        cell(
+          "Post-trial video limit",
+          videoLimit !== undefined ? `${videoLimit.toLocaleString()} min / cycle` : "—",
+        ),
+      ]);
+    } else {
+      return compact([
+        cell("Pack type", packType ? packTypeLabel[packType] : "—", "highlight"),
+        cell(
+          "Monthly price",
+          monthlyPrice !== undefined ? `${formatMoney(monthlyPrice, currency)} / month` : "—",
+        ),
+        cell("Next charge", formatDate(nextChargeDate)),
+        cell(
+          "Image limit",
+          imageLimit !== undefined ? `${imageLimit.toLocaleString()} / cycle` : "—",
+        ),
+        cell(
+          "Video limit",
+          videoLimit !== undefined ? `${videoLimit.toLocaleString()} min / cycle` : "—",
+        ),
+        cell(
+          "Overage rates",
+          compactJoin(
+            overageImage !== undefined ? `${formatMoney(overageImage, currency)} / image` : undefined,
+            overageVideo !== undefined ? `${formatMoney(overageVideo, currency)} / min` : undefined,
+          ) || "—",
+        ),
+      ]);
+    }
   }
 
   if (tone === "welcome-activate") {
-    return compact([
-      cell("Pack type", packType ? packTypeLabel[packType] : "—", "highlight"),
-      cell(
-        packType === "TRIAL" ? "Trial expires" : "Next charge",
-        packType === "TRIAL" ? formatDate(trialEnd) : formatDate(nextChargeDate),
-      ),
-      cell(
-        packType === "TRIAL" ? "First charge" : "Charge amount",
-        packType === "TRIAL"
-          ? `${formatDate(firstChargeIso)}${
-              nextChargeAmount !== undefined
-                ? ` · ${formatMoney(nextChargeAmount, currency)}`
-                : monthlyPrice !== undefined
-                  ? ` · ${formatMoney(monthlyPrice, currency)}`
-                  : ""
-            }`
-          : formatMoney(nextChargeAmount ?? monthlyPrice, currency),
-      ),
-      packType === "TRIAL"
-        ? cell(
-            "Trial image cap",
-            trialImageCap !== undefined ? `${trialImageCap.toLocaleString()} scans` : "—",
-          )
-        : null,
-      packType === "TRIAL"
-        ? cell(
-            "Trial video cap",
-            trialVideoCap !== undefined ? `${trialVideoCap.toLocaleString()} minutes` : "—",
-          )
-        : null,
-      cell(
-        packType === "TRIAL" ? "Post-trial limits" : "Cycle limits",
-        compactJoin(
-          imageLimit !== undefined
-            ? `${imageLimit.toLocaleString()} scans`
-            : undefined,
-          videoLimit !== undefined ? `${videoLimit.toLocaleString()} min` : undefined,
-        ) || "—",
-      ),
-      cell(
-        "Overage — per image",
-        overageImage !== undefined ? formatMoney(overageImage, currency) : "—",
-      ),
-      cell(
-        "Overage — per video minute",
-        overageVideo !== undefined ? formatMoney(overageVideo, currency) : "—",
-      ),
-    ]);
+    if (packType === "TRIAL") {
+      return compact([
+        cell("Pack type", packType ? packTypeLabel[packType] : "—", "highlight"),
+        cell("Trial expires", formatDate(trialEnd)),
+        cell(
+          "First charge",
+          `${formatDate(firstChargeIso)}${
+            nextChargeAmount !== undefined
+              ? ` · ${formatMoney(nextChargeAmount, currency)}`
+              : monthlyPrice !== undefined
+                ? ` · ${formatMoney(monthlyPrice, currency)}`
+                : ""
+          }`,
+        ),
+        cell(
+          "Trial image cap",
+          trialImageCap !== undefined ? `${trialImageCap.toLocaleString()} scans` : "—",
+        ),
+        cell(
+          "Trial video cap",
+          trialVideoCap !== undefined ? `${trialVideoCap.toLocaleString()} minutes` : "—",
+        ),
+        cell(
+          "Post-trial limits",
+          compactJoin(
+            imageLimit !== undefined ? `${imageLimit.toLocaleString()} scans` : undefined,
+            videoLimit !== undefined ? `${videoLimit.toLocaleString()} min` : undefined,
+          ) || "—",
+        ),
+        cell(
+          "Overage — per image",
+          overageImage !== undefined ? formatMoney(overageImage, currency) : "—",
+        ),
+        cell(
+          "Overage — per video minute",
+          overageVideo !== undefined ? formatMoney(overageVideo, currency) : "—",
+        ),
+      ]);
+    } else {
+      return compact([
+        cell("Pack type", packType ? packTypeLabel[packType] : "—", "highlight"),
+        cell(
+          "Monthly price",
+          monthlyPrice !== undefined ? `${formatMoney(monthlyPrice, currency)} / month` : "—",
+        ),
+        cell("Next charge", formatDate(nextChargeDate)),
+        cell(
+          "Image limit",
+          imageLimit !== undefined ? `${imageLimit.toLocaleString()} / cycle` : "—",
+        ),
+        cell(
+          "Video limit",
+          videoLimit !== undefined ? `${videoLimit.toLocaleString()} min / cycle` : "—",
+        ),
+        cell(
+          "Overage rates",
+          compactJoin(
+            overageImage !== undefined ? `${formatMoney(overageImage, currency)} / image` : undefined,
+            overageVideo !== undefined ? `${formatMoney(overageVideo, currency)} / min` : undefined,
+          ) || "—",
+        ),
+      ]);
+    }
   }
 
   if (tone === "trial-active") {
@@ -525,7 +564,7 @@ export function toBillingDashboardData(input: {
         "You'll be redirected to a secure Stripe-hosted page to add your card. Your card is not charged now — it will be charged when you activate your subscription in the next step. Praetion never stores your card details.",
       ctaLabel: "Add payment details",
       implementationNote:
-        "After adding your card, you'll be returned here automatically. We'll verify your payment setup (usually takes a few seconds) then show your pack details and activation button. Calls POST /billing/setup-link → redirects to Stripe hosted page. On return: polls GET /billing/payment-status/{brand_id} every 3s for up to 30s.",
+        "After adding your card, you'll be returned here automatically. We'll verify your payment setup (usually takes a few seconds) then show your pack details and activation button.",
     };
     const trialImg = brand.pack?.trial_image_limit;
     const trialVid = brand.pack?.trial_video_limit;
@@ -680,13 +719,23 @@ function buildUsageBlock(
     };
   }
 
+  const zeroMetric: UsageMetric = {
+    used: 0,
+    limit: 0,
+    overage: 0,
+    estimated_overage_charge: 0,
+  };
+
+  const imageMetric: UsageMetric = usage.image_scans ?? zeroMetric;
+  const videoMetric: UsageMetric = usage.video_minutes ?? zeroMetric;
+
   const isTrial = tone === "trial-active";
   const meters: UsageMeterDetail[] = [
     meter(
       "image_scans",
       "Image scans",
       "images",
-      usage.image_scans,
+      imageMetric,
       currency,
       isTrial,
       usage.cycle_end,
@@ -695,7 +744,7 @@ function buildUsageBlock(
       "video_minutes",
       "Video minutes",
       "minutes",
-      usage.video_minutes,
+      videoMetric,
       currency,
       isTrial,
       usage.cycle_end,
@@ -706,10 +755,10 @@ function buildUsageBlock(
     return {
       variant: "meters",
       title: "Usage — trial period · limits apply",
-      sourceLabel: "Sourced from GET /billing/usage/{brand_id} · real-time",
+      sourceLabel: "",
       topNote: {
         tone: "amber",
-        body: `Trial limits active: ${usage.image_scans.limit.toLocaleString()} image scans · ${usage.video_minutes.limit.toLocaleString()} video minutes. Full limits (${
+        body: `Trial limits active: ${imageMetric.limit.toLocaleString()} image scans · ${videoMetric.limit.toLocaleString()} video minutes. Full limits (${
           (brand.pack?.custom_image_limit ?? brand.pack?.image_scan_limit ?? 0).toLocaleString()
         } / ${(brand.pack?.custom_video_limit ?? brand.pack?.video_minutes_limit ?? 0).toLocaleString()} min) unlock automatically when trial ends.`,
       },

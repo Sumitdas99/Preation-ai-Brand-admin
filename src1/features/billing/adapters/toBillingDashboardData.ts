@@ -525,7 +525,7 @@ export function toBillingDashboardData(input: {
         "You'll be redirected to a secure Stripe-hosted page to add your card. Your card is not charged now — it will be charged when you activate your subscription in the next step. Praetion never stores your card details.",
       ctaLabel: "Add payment details",
       implementationNote:
-        "After adding your card, you'll be returned here automatically. We'll verify your payment setup (usually takes a few seconds) then show your pack details and activation button. Calls POST /billing/setup-link → redirects to Stripe hosted page. On return: polls GET /billing/payment-status/{brand_id} every 3s for up to 30s.",
+        "After adding your card, you'll be returned here automatically. We'll verify your payment setup (usually takes a few seconds) then show your pack details.",
     };
     const trialImg = brand.pack?.trial_image_limit;
     const trialVid = brand.pack?.trial_video_limit;
@@ -706,7 +706,7 @@ function buildUsageBlock(
     return {
       variant: "meters",
       title: "Usage — trial period · limits apply",
-      sourceLabel: "Sourced from GET /billing/usage/{brand_id} · real-time",
+      sourceLabel: "",
       topNote: {
         tone: "amber",
         body: `Trial limits active: ${usage.image_scans.limit.toLocaleString()} image scans · ${usage.video_minutes.limit.toLocaleString()} video minutes. Full limits (${

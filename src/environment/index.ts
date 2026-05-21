@@ -5,7 +5,7 @@
 const env = import.meta.env.VITE_APP_ENV || import.meta.env.MODE;
 
 // Backend API base URL. Must point to the API gateway/backend, NOT the frontend dev server (e.g. not http://localhost:5173).
-const DEFAULT_DEV_API = 'http://52.209.34.34:5150/api/v1';
+const DEFAULT_DEV_API = 'http://10.150.5.131:5150/api/v1';
 
 const getApiUrl = (): string => {
   let url: string;
