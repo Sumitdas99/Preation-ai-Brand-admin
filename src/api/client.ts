@@ -4,7 +4,9 @@ import { fromStatus, NetworkError, SchemaError } from "./errors";
 import { getLegalScenario } from "./legalScenario";
 import { getMockScenario } from "./mockScenario";
 
-const BASE_URL = API_BASE_URL;
+// When MSW is active, use empty base so requests go to same-origin (localhost:5173)
+// and the Service Worker can intercept them. Otherwise use the real API base URL.
+const BASE_URL = USE_MSW ? "" : API_BASE_URL;
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 
