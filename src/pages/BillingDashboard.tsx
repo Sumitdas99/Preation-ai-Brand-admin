@@ -24,7 +24,7 @@ import {
 
 export default function BillingDashboard() {
   // Use the specified brandId for now (will be retrieved from profile details later)
-  const brandId = "0bbe6e73-a5fb-4550-95bb-30f82afa14ce";
+  const brandId = "ded09d20-2fb6-4d31-b906-2a562d8c0238";
 
   useEffect(() => {
     document.title = "Billing & Usage · Praetion AI";
@@ -239,12 +239,36 @@ export default function BillingDashboard() {
   const usageData = useMemo(() => {
     if (billingUsage) {
       const cleaned = stripNulls(billingUsage);
-      // Normalise field names: the real API might use 'images'/'videos' or nested differently
-      const zeroMetric = { used: 0, limit: 0, overage: 0, estimated_overage_charge: 0 };
+
+      const mapMetric = (apiMetric: any, fallbackMetric: any) => {
+        if (!apiMetric && !fallbackMetric) {
+          return { used: 0, limit: 0, overage: 0, estimated_overage_charge: 0 };
+        }
+        const used = apiMetric?.current ?? apiMetric?.used ?? 0;
+        const limit = apiMetric?.limit ?? fallbackMetric?.limit ?? 0;
+        const overage = Math.max(0, used - limit);
+        const price = fallbackMetric?.overage_unit_price ?? 0;
+
+        return {
+          used,
+          limit,
+          overage,
+          estimated_overage_charge: overage * price,
+          overage_unit_price: price,
+        };
+      };
+
       return {
+        ...fallbackUsage,
         ...cleaned,
-        image_scans: cleaned.image_scans ?? cleaned.images ?? zeroMetric,
-        video_minutes: cleaned.video_minutes ?? cleaned.videos ?? cleaned.video ?? zeroMetric,
+        image_scans: mapMetric(
+          cleaned.image ?? cleaned.image_scans ?? cleaned.images,
+          fallbackUsage?.image_scans
+        ),
+        video_minutes: mapMetric(
+          cleaned.video ?? cleaned.video_minutes ?? cleaned.videos,
+          fallbackUsage?.video_minutes
+        ),
       };
     }
     return fallbackUsage;
@@ -282,7 +306,7 @@ export default function BillingDashboard() {
   const { isVerifying: isStripeVerifying, stop: stopStripeVerify } = stripeReturn;
   useEffect(() => {
     if (!isStripeVerifying) return;
-    
+
     if (paymentStatus?.payment_configured) {
       stopStripeVerify();
       toast.success("Payment details configured successfully!");
