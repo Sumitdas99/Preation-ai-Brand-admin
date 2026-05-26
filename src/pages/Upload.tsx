@@ -41,6 +41,7 @@ import {
   deleteAsset,
 } from "@/api/assets";
 import { selectUserRole, selectAuthUser } from "@/context/slice/authSlice";
+import { evaluatePreflight } from "@/api/endpoints/preflight";
 import { GoogleDriveModal } from "@/components/brand/GoogleDriveModal";
 import {
   importGoogleFile,
@@ -68,6 +69,7 @@ interface UploadFile {
   errorMessage?: string;
   assetId?: string;
   uploadId?: string;
+  originalUrl?: string;
 }
  
 // Track ongoing uploads for aborting
@@ -98,6 +100,7 @@ export default function Upload() {
   const [contentType, setContentType] = useState("in");
   const [autoDisclosure, setAutoDisclosure] = useState(true);
   const [autoC2PA, setAutoC2PA] = useState(true);
+  const [isEvaluating, setIsEvaluating] = useState<Record<string, boolean>>({});
  
   // Map to store upload metadata for aborting
   const uploadControllers = useRef<Map<string, UploadController>>(new Map());
@@ -185,7 +188,7 @@ export default function Upload() {
         ...(fileSha256 && { file_sha256: fileSha256 }),
         brand_id: brandId,
         distribution_channel: channel,
-        target_geography: geo.toUpperCase(),
+        target_geography: [geo.toUpperCase()],
         content_type: contentType,
         source: "upload",
         auto_generate_disclosure: autoDisclosure,
@@ -260,12 +263,19 @@ export default function Upload() {
       const parts = await runWithConcurrency(uploadTasks, UPLOAD_CONCURRENCY);
  
       // Complete upload
-      await completeMultipartUpload(assetId, uploadId, parts);
+      const completeResponse = await completeMultipartUpload(assetId, uploadId, parts);
  
       // Mark complete
       setFiles((prev) =>
         prev.map((f) =>
-          f.id === id ? { ...f, status: "complete", progress: 100 } : f
+          f.id === id
+            ? {
+                ...f,
+                status: "complete",
+                progress: 100,
+                originalUrl: completeResponse?.original_url,
+              }
+            : f
         )
       );
       toastSuccess(`${name} uploaded successfully.`, "Upload Complete");
@@ -306,7 +316,49 @@ export default function Upload() {
       uploadControllers.current.delete(id);
     }
   };
- 
+
+  const handlePreflightClick = async (file: UploadFile) => {
+    if (!file.assetId) {
+      toastError("Asset ID is missing");
+      return;
+    }
+
+    setIsEvaluating((prev) => ({ ...prev, [file.id]: true }));
+    try {
+      const workspaceId = brandId || user?.brandId || user?.brand_id || "";
+      const initiatedBy = user?.id || user?.user_id || "";
+      const modality = file.file.type.startsWith("video/") ? "VIDEO" : "IMAGE";
+      const s3Key =
+        file.originalUrl ||
+        `s3://aegisaicompliance-dev-bucket/assets/${file.assetId}/${file.name}`;
+
+      const payload = {
+        asset_id: file.assetId,
+        workspace_id: workspaceId,
+        initiated_by: initiatedBy,
+        modality,
+        s3_key: s3Key,
+        geo_context: [geo.toUpperCase()],
+        channel_context: channel.toUpperCase(),
+      };
+
+      const response = await evaluatePreflight(payload);
+      const runId = response.preflight_run_id;
+
+      if (runId) {
+        toastSuccess("Pre-flight evaluation initiated successfully.");
+        navigate(`/preflight/${runId}`);
+      } else {
+        toastError("Pre-flight evaluation did not return a run ID.");
+      }
+    } catch (err: any) {
+      console.error("Failed to evaluate preflight:", err);
+      toastError(err.message || "Failed to initiate Pre-flight evaluation.");
+    } finally {
+      setIsEvaluating((prev) => ({ ...prev, [file.id]: false }));
+    }
+  };
+
   // Add files and start upload automatically
   const addFilesAndUpload = (newFiles: File[]) => {
     if (!brandId) {
@@ -555,11 +607,16 @@ export default function Upload() {
     <Button
       variant="default"
       size="sm"
-      onClick={() => navigate(`/preflight/${file.assetId}`)}
+      onClick={() => handlePreflightClick(file)}
+      disabled={isEvaluating[file.id]}
       className="gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-sm"
     >
-      <Play className="h-3.5 w-3.5" />
-      <span>Pre-flight</span>
+      {isEvaluating[file.id] ? (
+        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+      ) : (
+        <Play className="h-3.5 w-3.5" />
+      )}
+      <span>{isEvaluating[file.id] ? "Evaluating..." : "Pre-flight"}</span>
     </Button>
   )}
  

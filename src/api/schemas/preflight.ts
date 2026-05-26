@@ -117,13 +117,23 @@ export type PreflightStatusResponse = z.infer<
 export const PreflightEvaluateRequest = z.object({
   asset_id: z.string(),
   workspace_id: z.string(),
+  initiated_by: z.string().optional(),
+  modality: z.string().optional(),
+  s3_key: z.string().optional(),
+  geo_context: z.array(z.string()).optional(),
+  channel_context: z.string().optional(),
   policy_pack_id: z.string().optional(),
 });
 export type PreflightEvaluateRequest = z.infer<
   typeof PreflightEvaluateRequest
 >;
 
-export const PreflightEvaluateResponse = PreflightStatusResponse;
+export const PreflightEvaluateResponse = z.object({
+  preflight_run_id: z.string(),
+  run_status: z.string().optional(),
+  status: PreflightPipelineStatus.optional(),
+  asset_id: z.string().optional(),
+}).passthrough();
 export type PreflightEvaluateResponse = z.infer<
   typeof PreflightEvaluateResponse
 >;
